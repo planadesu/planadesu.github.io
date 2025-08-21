@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+permissions:
+  id-token: write
+  pages: write
+
 jobs:
   build:
     name: Code standards & build
