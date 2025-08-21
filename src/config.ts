@@ -14,7 +14,7 @@ export const SITE = {
   editPost: {
     enabled: true,
     text: "编辑",
-    url: "https://github.com/planadesu/notes/edit/master/",
+    url: "https://github.com/planadesu/planadesu.github.io/edit/master/",
   },
   dynamicOgImage: true,
   dir: "ltr",
