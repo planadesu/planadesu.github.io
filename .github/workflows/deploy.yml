@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    name: Code standards & build
+    name: Build website
     runs-on: ubuntu-latest
     steps:
       - name: "☁️ Checkout repository"
@@ -36,6 +36,7 @@ jobs:
           path: ./dist
 
   deploy:
+    name: Deploy to GitHub Pages
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
