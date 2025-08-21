@@ -1,7 +1,9 @@
-name: CI
+name: Deploy
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -25,7 +27,7 @@ jobs:
 
       - name: "📄 Upload artifact"
         id: deployment
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
