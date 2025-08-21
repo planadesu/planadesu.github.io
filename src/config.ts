@@ -1,0 +1,23 @@
+export const SITE = {
+  website: "https://planadesu.github.io/",
+  author: "Plana",
+  profile: "https://github.com/planadesu",
+  desc: "欢迎访问 Plana 的个人笔记！",
+  title: "Plana的笔记",
+  ogImage: "astropaper-og.jpg",
+  lightAndDarkMode: true,
+  postPerIndex: 4,
+  postPerPage: 4,
+  scheduledPostMargin: 15 * 60 * 1000,
+  showArchives: true,
+  showBackButton: true,
+  editPost: {
+    enabled: false,
+    text: "Edit page",
+    url: "https://github.com/planadesu/notes/edit/main/",
+  },
+  dynamicOgImage: true,
+  dir: "ltr",
+  lang: "zh-CN",
+  timezone: "Asia/Shanghai",
+} as const;
