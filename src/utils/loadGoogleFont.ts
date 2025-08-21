@@ -1,62 +1,73 @@
-async function loadGoogleFont(
-  font: string,
-  text: string,
-  weight: number
-): Promise<ArrayBuffer> {
-  const API = `https://fonts.googleapis.com/css2?family=${font}:wght@${weight}&text=${encodeURIComponent(text)}`;
+import fs from "fs/promises";
+import crypto from "crypto";
 
-  const css = await (
-    await fetch(API, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; de-at) AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1",
-      },
-    })
-  ).text();
-
-  const resource = css.match(
-    /src: url\((.+?)\) format\('(opentype|truetype)'\)/
-  );
-
-  if (!resource) throw new Error("Failed to download dynamic font");
-
-  const res = await fetch(resource[1]);
-
-  if (!res.ok) {
-    throw new Error("Failed to download dynamic font. Status: " + res.status);
+function toArrayBuffer(buffer: Buffer) {
+  const arrayBuffer = new ArrayBuffer(buffer.length);
+  const view = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < buffer.length; ++i) {
+    view[i] = buffer[i];
   }
-
-  return res.arrayBuffer();
+  return arrayBuffer;
 }
 
-async function loadGoogleFonts(
-  text: string
-): Promise<
-  Array<{ name: string; data: ArrayBuffer; weight: number; style: string }>
-> {
-  const fontsConfig = [
-    {
-      name: "Noto Sans SC",
-      font: "Noto+Sans+SC",
-      weight: 400,
-      style: "normal",
-    },
-    {
-      name: "Noto Color Emoji",
-      font: "Noto+Color+Emoji",
-      weight: 400,
-      style: "normal",
+async function sha256(input: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(input);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
+    return hashHex;
+}
+
+async function getCachedFile(
+    url: string,
+    cacheKey: string
+): Promise<ArrayBuffer> {
+    const cacheDir = ".cache";
+    const cacheFilePath = `${cacheDir}/${cacheKey}`;
+    try {
+        const stats = await fs.stat(cacheFilePath);
+        if (stats.isFile()) {
+            const data = await fs.readFile(cacheFilePath);
+            return toArrayBuffer(data);
+        }
+    } catch (error) {
+        // File does not exist, proceed to fetch
     }
-  ];
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch font from ${url}`);
+    }
+    const data = await response.arrayBuffer();
+    await fs.mkdir(cacheDir, { recursive: true });
+    await fs.writeFile(cacheFilePath, Buffer.from(data));
+    return data;
+}
 
-  const fonts = await Promise.all(
-    fontsConfig.map(async ({ name, font, weight, style }) => {
-      const data = await loadGoogleFont(font, text, weight);
-      return { name, data, weight, style };
-    })
-  );
+async function loadGoogleFonts(): Promise<
+    Array<{ name: string; data: ArrayBuffer; weight: number; style: string }>
+> {
+    const fontsConfig = [
+        {
+            name: "Maple Mono CN",
+            url: "https://tc.skyone.host/static/MapleMono-CN-Regular.ttf",
+            weight: 400,
+            style: "normal",
+        },
+    ];
 
-  return fonts;
+    const fonts = await Promise.all(
+        fontsConfig.map(async ({ name, url, weight, style }) => {
+            const hash = await sha256(url);
+            const cacheKey = `google-fonts-${hash}`;
+            const data = await getCachedFile(url, cacheKey);
+            return { name, data, weight, style };
+        })
+    );
+
+    return fonts;
 }
 
 export default loadGoogleFonts;

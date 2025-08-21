@@ -4,7 +4,7 @@ export const SITE = {
   profile: "https://github.com/planadesu",
   desc: "欢迎访问 Plana 的个人笔记！",
   title: "Plana笔记",
-  ogImage: "astropaper-og.jpg",
+  ogImage: "og.png",
   lightAndDarkMode: true,
   postPerIndex: 4,
   postPerPage: 4,
