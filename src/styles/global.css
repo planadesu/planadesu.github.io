@@ -30,6 +30,7 @@ html[data-theme="dark"] {
 
 @font-face {
     font-family: "Maple Mono SC";
+    font-display: swap;
     src: url(https://tc.skyone.host/static/MapleMono-CN-Regular.woff2) format("woff2");
 }
 
